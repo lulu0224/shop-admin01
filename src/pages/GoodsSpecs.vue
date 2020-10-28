@@ -35,7 +35,7 @@
       </el-table-column>
     </el-table>
     <!-- 遮罩层 -->
-   <el-dialog title="规格添加" :visible.sync="dialogFormVisible">
+   <el-dialog title="规格添加" :visible.sync="dialogFormVisible" @close="reset">
       <el-form :model="form" :rules="rules" ref="form">
         <el-form-item
           label="属性名称"
@@ -90,7 +90,7 @@ export default {
     },
     //重置表单
     reset(){
-      attrsArr:[],
+      this.attrsArr=[{value:""}],
       this.form = {
         specsname:"",
         attrs: "",

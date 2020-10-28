@@ -27,20 +27,23 @@
       </el-table-column>
     </el-table>
     <!-- 遮罩层 -->
-    <el-dialog title="限时秒杀添加" :visible.sync="dialogFormVisible" @open="openFn">
+    <el-dialog title="限时秒杀添加" :visible.sync="dialogFormVisible" @open="openFn" @close="reset">
       <el-form :model="form" :rules="rules" ref="form">
         <el-form-item label="活动名称" :label-width="formLabelWidth" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="活动期限" :label-width="formLabelWidth">
           <el-date-picker
-               v-model="value2"
+               v-model="acttime"
                type="datetimerange"
                :picker-options="pickerOptions"
                range-separator="至"
                start-placeholder="开始日期"
                end-placeholder="结束日期"
-               align="right">
+               align="right"
+               value-format="timestamp"
+             
+               >
           </el-date-picker>
         </el-form-item>
         <el-form-item label="一级分类" :label-width="formLabelWidth">
@@ -73,6 +76,9 @@
             ></el-option>
           </el-select>
         </el-form-item>
+         <el-form-item label="状态" :label-width="formLabelWidth" prop="status">
+          <el-switch v-model="form.status"></el-switch>
+        </el-form-item>
           </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -93,16 +99,44 @@ export default {
       formLabelWidth: "120px",
       form: {
         title:"",
-        bengintime:"",
+        begintime:"",
         endtime:"",
         first_cateid:"",
         second_cateid:"",
         goodsid:"",
         status: true,
       },
+      pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
+      acttime:[],
       rules: {
-        rolename: [
-          { required: true, message: "请输入角色名称", trigger: "blur" },
+        title: [
+          { required: true, message: "请输入活动名称", trigger: "blur" },
         ],
       },
     };
@@ -115,20 +149,23 @@ export default {
       fstCateChange(pid){
           this.getsecondCate(pid)
      },
+     //二级分类选择发生改变，商品渲染的内容发生对应的改变
      secCateChange(sid){
-          this.getgoodList(sid)
+          let fid = this.form.first_cateid
+          this.getgoodList(fid,sid)
      },
     //重置表单
     reset(){
       this.form = {
         title:"",
-        bengintime:"",
+        begintime:"",
         endtime:"",
         first_cateid:"",
         second_cateid:"",
         goodsid:"",
         status: true,
-      }
+      },
+      this.acttime=[]
     },
     //点击删除按钮
     delFn(id){
@@ -137,10 +174,10 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       }).then(() => {
-        this.$http.post(this.$api.ROLEDELETE,{id}).then((res)=>{
+        this.$http.post(this.$api.SECKDELETE,{id}).then((res)=>{
           if (res.code == 200) {
               this.$message.success("删除成功");
-              this.getroleList();
+              this.getseckList();
             } else {
               this.$message.error(res.msg)
             }
@@ -159,18 +196,21 @@ export default {
     },
     //点击提交按钮
     submitForm(formName){
-      this.form.menus = this.$refs.tree.getCheckedKeys().join(",");
+      this.form.begintime = this.acttime[0];
+      this.form.endtime = this.acttime[1]; 
       this.form.status = this.form.status ? 1:2;
-       let url = this.form.id? this.$api.ROLEEDIT:this.$api.ROLEADD;
-       let str = this.$qs.stringify(this.form)
+      console.log(this.form);
+       let url = this.form.id? this.$api.SECKEDIT:this.$api.SECKADD;
+       let str = this.$qs.stringify(this.form);
+       console.log(url);
       this.$refs[formName].validate((valid)=>{
           if(!valid){
             return false;
           }
-         this.$http.post(url,str).then(res=>{
+         this.$http.post(url,this.form).then(res=>{
            if(res.code == 200){
              this.$message.success("操作成功");
-             this.getroleList();
+             this.getseckList();
              this.dialogFormVisible = false
            }else{
              this.$message.error(res.msg)
@@ -181,13 +221,15 @@ export default {
     },
     //编辑的数据操作
     async editinfo(id){
-      let res = await this.$http.get(this.$api.ROLEINFO,{id});
+      let res = await this.$http.get(this.$api.SECKINFO,{id});
            if(res.code == 200){
-             this.checkedKeys = res.list.menus.split(",");
-             this.form.menus = this.checkedKeys;
+             this.form = {...res.list};
+             this.acttime.push(res.list.begintime);
+             this.acttime.push(res.list.endtime);
              this.form.status = res.list.status == 1 ?true:false;
-             this.form.rolename  = res.list.rolename;
-             this.form.id = id
+             this.getsecondCate(this.form.first_cateid);
+             this.getgoodList(this.form.first_cateid,this.form.second_cateid);
+             this.form.id = id;
            }else{
              this.$message.error(res.msg)
            }
@@ -195,7 +237,6 @@ export default {
     //获得秒杀列表数据
     async getseckList() {
       let res = await this.$http.get(this.$api.SECKLIST);
-      console.log(res);
       if (res.code == 200) {
         this.secklist = res.list ? res.list : [];
       } else {
@@ -221,9 +262,8 @@ export default {
       }
     },
      //获取商品
-    async getgoodList(sid){
-       let res = await this.$http.get(this.$api.GOODSLIST,{sid});
-       console.log(res);
+    async getgoodList(fid,sid){
+       let res = await this.$http.get(this.$api.GOODSLIST,{fid,sid});
       if(res.code == 200){
         this.goodslist = res.list?res.list:[];
       }else{

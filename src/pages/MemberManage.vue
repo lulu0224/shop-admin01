@@ -9,7 +9,7 @@
     <el-table :data="memberlist" style="width: 100%" row-key="id" border>
       <el-table-column label="昵称" width="180" prop="nickname"></el-table-column>
       <el-table-column label="手机号" width="180" prop="phone"> </el-table-column>
-      <el-table-column label="注册时间" width="180" prop="addtime">
+      <el-table-column label="注册时间" width="180" :formatter="dateFormat" prop="addtime">
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -26,35 +26,17 @@
      >
     </el-pagination>
     <!-- 遮罩层 -->
-   <el-dialog title="管理员添加" :visible.sync="dialogFormVisible" @open = "getroleList" @close="reset">
-      <el-form :model="form" :rules="rules" ref="form">
-        <el-form-item
-          label="角色"
-          :label-width="formLabelWidth"
-          prop="roleid"
-        >
-          <el-select v-model="form.roleid" placeholder="请选择角色">
-            <el-option
-              :label="item.rolename"
-              :value="item.id"
-              v-for="item in roleslist"
-              :key="item.id"
-            ></el-option>
-          </el-select>
+   <el-dialog title="会员修改" :visible.sync="dialogFormVisible"  @close="reset">
+      <el-form :model="form">
+        <el-form-item label="昵称" :label-width="formLabelWidth" prop="nickname">
+          <el-input v-model="form.nickname" ></el-input>
         </el-form-item>
-           <el-form-item
-          label="用户名"
-          :label-width="formLabelWidth"
-          prop="username"
-        >
-          <el-input v-model="form.username" ></el-input>
+        <el-form-item label="手机号" :label-width="formLabelWidth" prop="phone">
+          <el-input v-model="form.phone" ></el-input>
         </el-form-item>
-           <el-form-item
-          label="密码"
-          :label-width="formLabelWidth"
-          prop="password"
-        >
+        <el-form-item label="密码" :label-width="formLabelWidth" prop="password">
           <el-input v-model="form.password" type="password"></el-input>
+          <span>不填写则不修改密码</span>
         </el-form-item>
         <el-form-item label="状态" :label-width="formLabelWidth">
           <el-switch v-model="form.status"></el-switch>
@@ -72,7 +54,6 @@ export default {
   data() {
     return {
       memberlist: [],
-      roleslist:[],
       dialogFormVisible: false,
       formLabelWidth: "100px",
       pageinfo:{
@@ -94,6 +75,25 @@ export default {
     };
   },
   methods: {
+      // 时间转换
+      dateFormat(row, column, cellValue, index){
+            const daterc = row[column.property];
+            function toTwo(num){
+              return num<10?("0"+num):num;
+            };
+            if(daterc!=null){
+                const dateMat= new Date(parseInt(daterc.replace("/Date(", "").replace(")/", ""), 10));
+                const year = dateMat.getFullYear();
+              const month = dateMat.getMonth() + 1;
+              const day = dateMat.getDate();
+              const hh = dateMat.getHours();
+              const mm = dateMat.getMinutes();
+              const ss = dateMat.getSeconds();
+              const timeFormat= `${year}-${toTwo(month)}-${toTwo(day)} ${toTwo(hh)}:${toTwo(mm)}:${toTwo(ss)} `;
+              return timeFormat;
+            }
+                   
+      },
     pageChange(page){
       this.pageinfo.page = page;
       this.getmemberList();
@@ -112,12 +112,11 @@ export default {
       this.dialogFormVisible = true;
       this.editinfo(uid)
     },
-   /*  //点击提交按钮
+    //点击提交按钮
     submitForm(){
       this.form.status = this.form.status ? 1:2;
        let str = this.$qs.stringify(this.form)
          this.$http.post(this.$api.MEMBEREDIT,str).then(res=>{
-           console.log(res);
            if(res.code == 200){
              this.$message.success("操作成功");
              this.getmemberList();
@@ -127,11 +126,10 @@ export default {
            }
          })
       
-    }, */
+    },
     //获取一条信息
    async editinfo(uid){
       let res = await this.$http.get(this.$api.MEMBERINFO,{uid});
-      console.log(res);
            if(res.code == 200){
              this.form = {...res.list}
              this.form.status = res.list.status == 1 ?true:false;
@@ -139,13 +137,12 @@ export default {
              this.$message.error(res.msg)
            }
     },
-    //获取所有user数据
+    //获取所有member数据
     async getmemberList() {
       this.getpage()
       let page = this.pageinfo.page;
       let size = this.pageinfo.size
       let res = await this.$http.get(this.$api.MEMBERLIST,{size,page});
-      console.log(res);
       if (res.code == 200) {
         this.memberlist = res.list;
       } else {
@@ -161,20 +158,11 @@ export default {
         this.$message.error(res.msg);
       }
     },
-    //获取角色名称
-    async getroleList() {
-      let res = await this.$http.get(this.$api.ROLELIST);
-      if (res.code == 200) {
-        this.roleslist = res.list;
-      } else {
-        this.$message.error(res.msg);
-      }
-    },
   },
   mounted() {
     this.getmemberList();
     this.getpage();
-  },
+  }
 };
 </script>
 <style lang="less">

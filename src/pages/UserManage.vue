@@ -85,7 +85,7 @@ export default {
       dialogFormVisible: false,
       formLabelWidth: "100px",
       pageinfo:{
-           size:3,
+           size:2,
            page:1,
            total:0,
       },

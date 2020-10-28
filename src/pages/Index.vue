@@ -46,7 +46,7 @@
     </div>
         <div
           id="main"
-          style="width: 60%; height: 350px; margin-top: 50px"
+          style="width: 50%; height: 350px; margin-top: 50px;margin-left:50px"
         ></div>
   </div>
 </template>

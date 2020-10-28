@@ -36,7 +36,7 @@
      >
     </el-pagination>
     <!-- 遮罩层 -->
-   <el-dialog title="商品添加" :visible.sync="dialogFormVisible"  @close="reset" @open="openFn">
+   <el-dialog title="商品添加" :visible.sync="dialogFormVisible"  @close="reset" @open="openFn" @opened="openedFn">
       <el-form :model="form"  ref="form">
         <el-form-item label="一级分类" :label-width="formLabelWidth">
           <el-select v-model="form.first_cateid" placeholder="请选择分类" @change="fstCateChange">
@@ -209,15 +209,20 @@ export default {
      // 打开对话框的回调
     openFn() {
       this.getfirstCate();
-      this.getspecsList()
+      this.getspecsList();
+      
     },
-    addFn(){
-      this.dialogFormVisible = true;
+    openedFn(){
       this.editor = new E("#editor");
           this.editor.config.onchange = newHtml => {
             this.form.description = newHtml;
           };
       this.editor.create();
+      this.editor.txt.html(this.form.description);
+    },
+    addFn(){
+      this.dialogFormVisible = true;
+      
     },
     //点击删除按钮
     delFn(id){
@@ -278,11 +283,6 @@ export default {
              this.specsarr = this.form.specsattr.split(",");
               this.form.specsattr = this.form.specsattr.split(",")
             this.fileList = [{ name: "", url: this.$url + this.form.img }];
-              this.editor = new E("#editor");
-            this.editor.config.onchange = newHtml => {
-            this.form.description = newHtml;
-          };
-            this.editor.create();
             this.editor.txt.html(this.form.description);
            }else{
              this.$message.error(res.msg)

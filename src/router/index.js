@@ -65,20 +65,18 @@ router.beforeEach((to,from,next)=>{
   //用token来判断是否登录
   let token = localStorage.getItem("token");
   
+   let menusUrl = JSON.parse(localStorage.getItem("info"));
   //如果登录了
-  if(token){
+  if(token && menusUrl){
     if(to.path == "/login"){
       next(false)
     }else{
-      next()
-      /* let menus_url = JSON.parse(localStorage.getItem("info")).menus_url;
-      let flag = menus_url.find(item=>to.path == item);
-      if(flag){
+      let flag = menusUrl.menus_url.find(item=>(to.path == item));
+      if(flag || to.path == "/index"){
         next()
       }else{
         next(false);
-      } */
-      
+      }
     }
   }else{
     //如果没登录

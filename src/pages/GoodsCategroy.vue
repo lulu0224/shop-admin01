@@ -198,7 +198,6 @@ export default {
              this.form = {...res.list}
               this.form.id = id;
              this.form.status = res.list.status == 1 ?true:false;
-             console.log(this.form);
            }else{
              this.$message.error(res.msg)
            }

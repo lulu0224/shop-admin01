@@ -87,7 +87,8 @@ export default {
         rolename: "",
         menus: [],
         status: true,
-      }
+      },
+      this.checkedKeys=[]
     },
     //点击删除按钮
     delFn(id){
