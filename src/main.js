@@ -22,7 +22,6 @@ Vue.prototype.$url = "http://localhost:3000";
 Vue.config.productionTip = false
 Vue.component("my-table",MyTable)
 Vue.component("my-breadcrumb",MyBreadcrumb)
-/* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,

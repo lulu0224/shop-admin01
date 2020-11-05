@@ -63,7 +63,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button  @click="closeFrom('form')">取 消</el-button>
         <el-button type="primary" @click="submitForm('form')">提交</el-button>
       </div>
     </el-dialog>
@@ -143,8 +143,17 @@ export default {
             type: 1,
             url: "",
             status: true
-        }
+        },
+        this.$refs['form'].resetFields();
       },
+      
+    // 对话框取消事件
+        closeFrom(formName){
+          this.$refs[formName].resetFields();
+            this.dialogFormVisible = false;
+            // 点击取消 数据重置
+        },
+       
     // 切换菜单名是触发
     changeMenu(pid){
       this.form.type = pid >0?2:1;

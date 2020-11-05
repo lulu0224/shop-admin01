@@ -35,7 +35,7 @@
      >
     </el-pagination>
     <!-- 遮罩层 -->
-   <el-dialog title="管理员添加" :visible.sync="dialogFormVisible" @open = "getroleList" @close="reset">
+   <el-dialog title="管理员添加" :visible.sync="dialogFormVisible" @open = "getroleList" @close="reset('form')">
       <el-form :model="form" :rules="rules" ref="form">
         <el-form-item
           label="角色"
@@ -107,7 +107,8 @@ export default {
       this.getuserList();
     },
     //重置表单
-    reset(){
+    reset(formName){
+      this.$refs[formName].clearValidate()
       this.form = {
         roleid: "",
         username:"",

@@ -64,14 +64,14 @@ const router =  new Router({
 router.beforeEach((to,from,next)=>{
   //用token来判断是否登录
   let token = localStorage.getItem("token");
-  
    let menusUrl = JSON.parse(localStorage.getItem("info"));
   //如果登录了
   if(token && menusUrl){
     if(to.path == "/login"){
       next(false)
     }else{
-      let flag = menusUrl.menus_url.find(item=>(to.path == item));
+      let all_menus = [...menusUrl.menus_url,"/","/index"]
+      let flag = all_menus.find(item=>(to.path == item));
       if(flag || to.path == "/index"){
         next()
       }else{

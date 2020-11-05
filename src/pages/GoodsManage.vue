@@ -22,7 +22,7 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button size="mini" @click="editFn(scope.row.id)">编辑</el-button>
+          <el-button size="mini" @click="editFn(scope.row)">编辑</el-button>
           <el-button size="mini" type="danger" @click="delFn(scope.row.id)" >删除</el-button>
         </template>
       </el-table-column>
@@ -36,7 +36,7 @@
      >
     </el-pagination>
     <!-- 遮罩层 -->
-   <el-dialog title="商品添加" :visible.sync="dialogFormVisible"  @close="reset" @open="openFn" @opened="openedFn">
+   <el-dialog title="商品添加" :visible.sync="dialogFormVisible"  @close="reset('form')" @open="openFn" @opened="openedFn">
       <el-form :model="form"  ref="form">
         <el-form-item label="一级分类" :label-width="formLabelWidth">
           <el-select v-model="form.first_cateid" placeholder="请选择分类" @change="fstCateChange">
@@ -187,7 +187,8 @@ export default {
       this.specsarr = this.specslist.find(item=>item.id == id).attrs;
     },
     //重置表单
-    reset(){
+    reset(formName){
+      this.$refs[formName].clearValidate()
        this.fileList =[],
       this.form = {
         first_cateid:"",
@@ -210,9 +211,9 @@ export default {
     openFn() {
       this.getfirstCate();
       this.getspecsList();
-      
     },
     openedFn(){
+      document.getElementById("editor").innerHTML = ""; 
       this.editor = new E("#editor");
           this.editor.config.onchange = newHtml => {
             this.form.description = newHtml;
@@ -222,7 +223,6 @@ export default {
     },
     addFn(){
       this.dialogFormVisible = true;
-      
     },
     //点击删除按钮
     delFn(id){
@@ -248,9 +248,25 @@ export default {
         });
   },
     //点击编辑操作
-    editFn(id){
+    editFn(row){
       this.dialogFormVisible = true;
-      this.editinfo(id);
+        this.form.first_cateid=row.first_cateid,
+        this.form.second_cateid=row.second_cateid,
+        this.form.goodsname=row.goodsname,
+        this.form.price=row.price,
+        this.form.market_price=row.market_price,
+        this.form.img=row.img,
+        this.form.description=row.description,
+        this.form.specsid=row.specsid,
+        this.form.specsattr=row.specsattr,
+        this.form.isnew=row.isnew,
+        this.form.ishot=row.ishot,
+        this.form.status=row.status,
+        this.form.id = row.id
+      this.getsecondCate(this.form.first_cateid);
+      this.specsarr = this.form.specsattr.split(",");
+      this.form.specsattr = this.form.specsattr.split(",")
+      this.fileList = [{ name: "", url: this.$url + this.form.img }];
     },
     //点击提交按钮
     submitForm(formName){
@@ -272,21 +288,6 @@ export default {
          })
       })
       
-    },
-    //获取一条信息
-   async editinfo(id){
-      let res = await this.$http.get(this.$api.GOODSINFO,{id});
-           if(res.code == 200){
-             this.form = {...res.list};
-             this.form.id = id;
-             this.getsecondCate(this.form.first_cateid);
-             this.specsarr = this.form.specsattr.split(",");
-              this.form.specsattr = this.form.specsattr.split(",")
-            this.fileList = [{ name: "", url: this.$url + this.form.img }];
-            this.editor.txt.html(this.form.description);
-           }else{
-             this.$message.error(res.msg)
-           }
     },
     //获取所有goods数据
     async getgoodsList() {

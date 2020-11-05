@@ -31,7 +31,7 @@
     <!-- 遮罩层 -->
     <el-dialog title="轮播图添加" 
               :visible.sync="dialogFormVisible"
-              @close="reset"
+              @close="reset('form')"
               >
       <el-form :model="form" :rules="rules" ref="form">
         <el-form-item
@@ -156,13 +156,14 @@ export default {
     },
 
     //重置操作
-    reset() {
+    reset(formName) {
       this.form = {
         title: "",
         img: "",
         status: true,
       };
       this.fileList = [];
+      this.$refs[formName].clearValidate()
     },
     //获取一条信息
     async editinfo(id) {

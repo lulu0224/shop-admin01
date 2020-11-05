@@ -27,7 +27,7 @@
       </el-table-column>
     </el-table>
     <!-- 遮罩层 -->
-    <el-dialog title="限时秒杀添加" :visible.sync="dialogFormVisible" @open="openFn" @close="reset">
+    <el-dialog title="限时秒杀添加" :visible.sync="dialogFormVisible" @open="openFn" @close="reset('form')">
       <el-form :model="form" :rules="rules" ref="form">
         <el-form-item label="活动名称" :label-width="formLabelWidth" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
@@ -42,7 +42,6 @@
                end-placeholder="结束日期"
                align="right"
                value-format="timestamp"
-             
                >
           </el-date-picker>
         </el-form-item>
@@ -155,7 +154,8 @@ export default {
           this.getgoodList(fid,sid)
      },
     //重置表单
-    reset(){
+    reset(formName){
+      this.$refs[formName].clearValidate()
       this.form = {
         title:"",
         begintime:"",

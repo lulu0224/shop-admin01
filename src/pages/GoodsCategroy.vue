@@ -41,7 +41,7 @@
       title="分类添加"
       :visible.sync="dialogFormVisible"
       @open="gettopcateList"
-      @close="reset"
+      @close="reset('form')"
     >
       <el-form :model="form" :rules="rules" ref="form">
         <el-form-item label="上级分类" :label-width="formLabelWidth" prop="pid">
@@ -178,7 +178,8 @@ export default {
     },
  
     //重置操作
-    reset() {
+    reset(formName){
+      this.$refs[formName].clearValidate()
       this.form = {
         pid: "",
         catename: "",

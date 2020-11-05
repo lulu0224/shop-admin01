@@ -9,7 +9,8 @@
     <el-table :data="memberlist" style="width: 100%" row-key="id" border>
       <el-table-column label="昵称" width="180" prop="nickname"></el-table-column>
       <el-table-column label="手机号" width="180" prop="phone"> </el-table-column>
-      <el-table-column label="注册时间" width="180" :formatter="dateFormat" prop="addtime">
+      <el-table-column label="注册时间" width="180">
+        <template slot-scope="scope">{{scope.row.addtime | formatTime}}</template>
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -74,26 +75,27 @@ export default {
       },
     };
   },
-  methods: {
-      // 时间转换
-      dateFormat(row, column, cellValue, index){
-            const daterc = row[column.property];
+  filters:{
+       // 时间转换
+      formatTime(time){
             function toTwo(num){
               return num<10?("0"+num):num;
             };
-            if(daterc!=null){
-                const dateMat= new Date(parseInt(daterc.replace("/Date(", "").replace(")/", ""), 10));
-                const year = dateMat.getFullYear();
+              const dateMat= new Date(parseInt(time));
+              const year = dateMat.getFullYear();
               const month = dateMat.getMonth() + 1;
               const day = dateMat.getDate();
               const hh = dateMat.getHours();
               const mm = dateMat.getMinutes();
               const ss = dateMat.getSeconds();
               const timeFormat= `${year}-${toTwo(month)}-${toTwo(day)} ${toTwo(hh)}:${toTwo(mm)}:${toTwo(ss)} `;
+              console.log(timeFormat);
               return timeFormat;
-            }
                    
       },
+  },
+  methods: {
+     
     pageChange(page){
       this.pageinfo.page = page;
       this.getmemberList();

@@ -27,7 +27,7 @@
       </el-table-column>
     </el-table>
     <!-- 遮罩层 -->
-    <el-dialog title="角色添加" :visible.sync="dialogFormVisible" @open="getmenuList" @close="reset">
+    <el-dialog title="角色添加" :visible.sync="dialogFormVisible" @open="getmenuList" @close="reset('form')">
       <el-form :model="form" :rules="rules" ref="form">
         <el-form-item
           label="角色名称"
@@ -82,7 +82,8 @@ export default {
   },
   methods: {
     //重置表单
-    reset(){
+    reset(formName){
+      this.$refs[formName].clearValidate()
       this.form = {
         rolename: "",
         menus: [],
